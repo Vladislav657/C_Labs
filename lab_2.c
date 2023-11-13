@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#define ASCII_COUNT 95
 
 
 void printWrong(){
@@ -24,28 +25,17 @@ void printTask(){
 
 int countOfWords(FILE* in){
     int count = 0;
-    char c;
-    while((c = fgetc(in)) != EOF)
-        if (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\b') count++;
-    if (count > 0) count++;
-    return count;
-}
-
-
-int countOfChar(char ch, FILE* in){
-    int count = 0;
-    char c;
-    while((c = fgetc(in)) != EOF)
-        if (c == ch) count++;
-    return count;
-}
-
-
-int countOfCharIr(char ch, FILE* in){
-    int count = 0;
-    char c;
-    while((c = fgetc(in)) != EOF)
-        if (tolower(c) == ch) count++;
+    int is_previous_space = 1;
+    char c = ' ';
+    while(c != EOF){
+        c = fgetc(in);
+        if (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\b' || c == EOF) {
+            if (is_previous_space == 0) count++;
+            is_previous_space = 1;
+        } else {
+            is_previous_space = 0;
+        }
+    }
     return count;
 }
 
@@ -58,24 +48,52 @@ double countOfAllChars(FILE* in){
 }
 
 
-void printEn(char *chars, FILE* f){
+void printAll(FILE* in){
     printf("\nсимвол\tколичество\tчастота\n");
-    double countAll = countOfAllChars(f);
-    for (int i = 0; i < strlen(chars); ++i) {
-        fseek(f, -ftell(f), SEEK_END);
-        int letterCount = countOfChar(chars[i], f);
-        printf("%c\t%d\t\t%lf\n", chars[i], letterCount, letterCount / countAll);
+    int charCounts[ASCII_COUNT];
+    for (int i = 0; i < ASCII_COUNT; ++i) charCounts[i] = 0;
+    double countAll = countOfAllChars(in);
+    char c;
+    fseek(in, -ftell(in), SEEK_END);
+    while((c = fgetc(in)) != EOF){
+        charCounts[(int)c - 32]++;
+    }
+    for (int i = 0; i < ASCII_COUNT; ++i) {
+        printf("%c\t%d\t\t%lf\n", (char)(i + 32), charCounts[i], charCounts[i] / countAll);
     }
 }
 
 
-void printEnIr(char *chars, FILE* f){
-    printf("\nсимвол\tколичество\tчастота\n");
-    double countAll = countOfAllChars(f);
-    for (int i = 0; i < strlen(chars); ++i) {
-        fseek(f, -ftell(f), SEEK_END);
-        int letterCount = countOfCharIr(chars[i], f);
-        printf("%c\t%d\t\t%lf\n", chars[i], letterCount, letterCount / countAll);
+void printEn(FILE* in){
+    printf("\nбуква\tколичество\tчастота\n");
+    int charCounts[ASCII_COUNT];
+    for (int i = 0; i < ASCII_COUNT; ++i) charCounts[i] = 0;
+    double countAll = countOfAllChars(in);
+    char c;
+    fseek(in, -ftell(in), SEEK_END);
+    while((c = fgetc(in)) != EOF){
+        charCounts[(int)c - 32]++;
+    }
+    for (int i = 0; i < ASCII_COUNT; ++i) {
+        if(i + 32 <= 90 && i + 32 >= 65 || i + 32 <= 122 && i + 32 >= 97)
+            printf("%c\t%d\t\t%lf\n", (char)(i + 32), charCounts[i], charCounts[i] / countAll);
+    }
+}
+
+
+void printEnIr(FILE* in){
+    printf("\nбуква\tколичество\tчастота\n");
+    int charCounts[ASCII_COUNT];
+    for (int i = 0; i < ASCII_COUNT; ++i) charCounts[i] = 0;
+    double countAll = countOfAllChars(in);
+    char c;
+    fseek(in, -ftell(in), SEEK_END);
+    while((c = fgetc(in)) != EOF){
+        charCounts[(int) tolower(c) - 32]++;
+    }
+    for (int i = 0; i < ASCII_COUNT; ++i) {
+        if(i + 32 <= 122 && i + 32 >= 97)
+            printf("%c\t%d\t\t%lf\n", (char)(i + 32), charCounts[i], charCounts[i] / countAll);
     }
 }
 
@@ -94,9 +112,8 @@ int main(int argc, char *argv[]) {
             return 0;
         }
         else if(strcmp(argv[2], "-w") == 0 || strcmp(argv[2], "--word") == 0) printf("\n%d\n", countOfWords(fp));
-        else if(strcmp(argv[2], "--en") == 0) printEn("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", fp);
-        else if(strcmp(argv[2], "--all") == 0) printEn(" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                       "[\\]\"^_~`{|}abcdefghijklmnopqrstuvwxyz", fp);
+        else if(strcmp(argv[2], "--en") == 0) printEn(fp);
+        else if(strcmp(argv[2], "--all") == 0) printAll(fp);
         else printWrong();
         fclose(fp);
     }
@@ -107,7 +124,7 @@ int main(int argc, char *argv[]) {
             printf("\nТакого файла не существует\n");
             return 0;
         }
-        if(strcmp(argv[2], "--en") == 0 && strcmp(argv[3], "--ir") == 0) printEnIr("abcdefghijklmnopqrstuvwxyz", fp);
+        if(strcmp(argv[2], "--en") == 0 && strcmp(argv[3], "--ir") == 0) printEnIr(fp);
         else printWrong();
         fclose(fp);
     }
