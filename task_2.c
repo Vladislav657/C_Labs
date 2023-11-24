@@ -4,6 +4,7 @@
 
 
 int rightPart(int n){
+    if(n < 0) n *= -1;
     int k = 1;
     while (n % 2 != 1){
         k *= 2;

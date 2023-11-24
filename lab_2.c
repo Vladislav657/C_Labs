@@ -29,7 +29,7 @@ int countOfWords(FILE* in){
     char c = ' ';
     while(c != EOF){
         c = fgetc(in);
-        if (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\b' || c == EOF) {
+        if (isspace(c) || c == EOF) {
             if (is_previous_space == 0) count++;
             is_previous_space = 1;
         } else {
