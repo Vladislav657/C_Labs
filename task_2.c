@@ -36,6 +36,6 @@ int main(void) {
     fclose(in);
 
     printf("%d", rightPartsSum(a, b));
-
+    free(path);
     return 0;
 }

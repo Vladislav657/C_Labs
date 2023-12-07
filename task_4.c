@@ -33,5 +33,7 @@ int main(void) {
     fprintf(out, "%d", primes);
     fclose(out);
 
+    free(path);
+
     return 0;
 }
